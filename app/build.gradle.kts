@@ -6,6 +6,7 @@ plugins {
 	kotlin("jvm") version "1.6.21"
 	kotlin("plugin.spring") version "1.6.21"
 	kotlin("plugin.jpa") version "1.6.21"
+	jacoco
 }
 
 group = "com.example"
@@ -23,15 +24,16 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.6")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client:2.6.6")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	compileOnly("org.projectlombok:lombok")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("mysql:mysql-connector-java")
-	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	implementation("org.springframework.boot:spring-boot-starter-web:2.6.6")
+	compileOnly("org.projectlombok:lombok:1.18.22")
+	developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.6")
+	runtimeOnly("mysql:mysql-connector-java:8.0.28")
+	annotationProcessor("org.projectlombok:lombok:1.18.22")
+	testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.6")
 }
 
 tasks.withType<KotlinCompile> {
@@ -43,4 +45,24 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+	reportsDirectory.set(layout.buildDirectory.dir("customJacocoReportDir"))
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required.set(false)
+		csv.required.set(false)
+		html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+	}
 }
